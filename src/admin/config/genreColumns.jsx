@@ -3,8 +3,6 @@ import {
   Folder as FolderIcon,
   FolderOpen as FolderOpenIcon,
 } from "@mui/icons-material";
-import store from "../../store/store";
-
 export const columns = [
   {
     field: "code",
