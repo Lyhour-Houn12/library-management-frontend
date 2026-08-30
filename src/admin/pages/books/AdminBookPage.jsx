@@ -81,31 +81,59 @@ const fakeBooks = [
   },
 ];
 
+const initialForm = {
+  isbn: "",
+  title: "",
+  author: "",
+  genreId: "",
+  publisher: "",
+  publicationDate: "",
+  language: "",
+  pages: "",
+  description: "",
+  totalCopies: 1,
+  availableCopies: 1,
+  price: "",
+  coverImageUrl: "",
+  active: true,
+};
+
 const AdminBookPage = () => {
   const [openDialog, setOpenDialog] = useState(false);
-  const [formData, setFormData] = useState({
-    isbn: "",
-    title: "",
-    author: "",
-    genreId: "",
-    publisher: "",
-    publicationDate: "",
-    language: "",
-    pages: "",
-    description: "",
-    totalCopies: 1,
-    availableCopies: 1,
-    price: "",
-    coverImageUrl: "",
-    active: true,
-  });
+  const [formData, setFormData] = useState(initialForm);
+  const [editingBook, setEditingBook] = useState(null);
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
+    setFormData(initialForm);
   };
 
   const handleAdd = () => {
     setOpenDialog(true);
+  };
+  const handleEdit = (book) => {
+    setEditingBook(book);
+    setFormData({
+      isbn: book.isbn ?? null,
+      title: book.title ?? "",
+      author: book.author ?? "",
+      genreId: book.genreId ?? null,
+      publisher: book.publisher ?? "",
+      publicationDate: book.publicationDate ?? null,
+      language: book.language ?? "",
+      page: book.page ?? "",
+      description: book.description ?? "",
+      totalCopies: book.totalCopies ?? 1,
+      availableCopies: book.availableCopies ?? 1,
+      price: book.price ?? null,
+      coverImageUrl: book.coverImageUrl ?? null,
+      active: book.active ?? true,
+    });
+    setOpenDialog(true);
+  };
+
+  const resetForm = () => {
+    setFormData(initialForm);
   };
 
   return (
@@ -247,7 +275,7 @@ const AdminBookPage = () => {
         actions
         onView={() => {}}
         onDelete={() => {}}
-        onEdit={() => {}}
+        onEdit={handleEdit}
       />
 
       <BookForm
@@ -255,6 +283,7 @@ const AdminBookPage = () => {
         handleCloseDialog={handleCloseDialog}
         formData={formData}
         setFormData={setFormData}
+        resetForm={resetForm}
       />
     </Box>
   );

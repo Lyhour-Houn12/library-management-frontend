@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   createGenre,
   deleteGenre,
+  fetchActiveGenres,
   fetchGenres,
   updateGenre,
 } from "./genreThunk";
@@ -89,6 +90,20 @@ const genreSlice = createSlice({
       })
       .addCase(deleteGenre.rejected, (state, action) => {
         state.actionLoading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(fetchActiveGenres.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchActiveGenres.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.activeGenres = action.payload;
+      })
+      .addCase(fetchActiveGenres.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload;
       })
 

@@ -74,4 +74,19 @@ export const fetchGenres = createAsyncThunk(
   },
 );
 
-
+export const fetchActiveGenres = createAsyncThunk(
+  "genre/activeGenre",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`${API_URL}/active`, {
+        headers: getHeaders(),
+      });
+      console.log(response.data);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch active genre",
+      );
+    }
+  },
+);

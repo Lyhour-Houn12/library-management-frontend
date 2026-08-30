@@ -26,16 +26,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useUploadImage } from "./useUploadImage";
-
-// Temporary fake genres
-const activeGenres = [
-  { id: 1, name: "Khmer Literature" },
-  { id: 2, name: "Fiction" },
-  { id: 3, name: "Programming" },
-  { id: 4, name: "History" },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { createBook } from "../../../store/features/books/bookThunk";
+import toast from "react-hot-toast";
+import { fetchActiveGenres } from "../../../store/features/genres/genreThunk";
 
 const UploadButton = styled(Paper)(({ theme, isDragActive }) => ({
   padding: theme.spacing(3),
@@ -81,8 +77,8 @@ const BookForm = ({
   handleCloseDialog,
   formData,
   setFormData,
+  resetForm,
   editingBooks,
-  handleSubmit,
   viewBook,
 }) => {
   const updateField = (field, value) => {
@@ -91,6 +87,22 @@ const BookForm = ({
       [field]: value,
     });
   };
+
+  const dispatch = useDispatch();
+  const { activeGenres } = useSelector((state) => state.genres);
+  const { actionLoading } = useSelector((state) => state.books);
+
+  useEffect(() => {
+    const loadGenres = async () => {
+      try {
+        await dispatch(fetchActiveGenres()).unwrap();
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    loadGenres();
+  }, [dispatch]);
 
   const {
     isDragActive,
@@ -102,6 +114,27 @@ const BookForm = ({
     handleDragOver,
     handleDrop,
   } = useUploadImage({ formData, setFormData });
+
+  const handleAddBook = async () => {
+    const { coverImageUrl, ...bookDataToSend } = formData;
+
+    try {
+      await dispatch(
+        createBook({
+          bookData: bookDataToSend,
+          coverImageFile,
+        }),
+      ).unwrap();
+
+      toast.success("Book created successfully");
+
+      handleCloseDialog();
+    } catch (error) {
+      console.error("Failed to create book:", error);
+
+      toast.error(error?.message || error || "Failed to create book");
+    }
+  };
 
   return (
     <Dialog
@@ -294,7 +327,7 @@ const BookForm = ({
                   <em>Select a genre</em>
                 </MenuItem>
 
-                {activeGenres.map((genre) => (
+                {activeGenres?.map((genre) => (
                   <MenuItem key={genre.id} value={genre.id}>
                     {genre.name}
                   </MenuItem>
@@ -692,9 +725,18 @@ const BookForm = ({
 
         {!viewBook && (
           <Button
-            onClick={handleSubmit}
+            onClick={handleAddBook}
             variant="contained"
-            startIcon={editingBooks ? <Save /> : <Add />}
+            startIcon={
+              actionLoading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : editingBooks ? (
+                <Save />
+              ) : (
+                <Add />
+              )
+            }
+            disabled={actionLoading}
             sx={{
               px: 2.8,
               py: 1,
@@ -712,7 +754,13 @@ const BookForm = ({
               },
             }}
           >
-            {editingBooks ? "Save Changes" : "Create Book"}
+            {actionLoading
+              ? editingBooks
+                ? "Saving..."
+                : "Creating..."
+              : editingBooks
+                ? "Save Changes"
+                : "Create Book"}
           </Button>
         )}
       </DialogActions>

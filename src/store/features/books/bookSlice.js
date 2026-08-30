@@ -21,7 +21,7 @@ const initialState = {
     totalInactiveBooks: 0,
   },
   loading: false,
-  activeLoading: false,
+  actionLoading: false,
   error: null,
   filter: {
     genreId: null,
@@ -41,16 +41,16 @@ const bookSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(createBook.pending, (state) => {
-        state.activeLoading = true;
+        state.actionLoading = true;
         state.error = null;
       })
       .addCase(createBook.fulfilled, (state, action) => {
-        state.activeLoading = false;
-        state.loading = null;
+        state.actionLoading = false;
+        state.error = null;
         state.books.push(action.payload);
       })
       .addCase(createBook.rejected, (state, action) => {
-        state.activeLoading = false;
+        state.actionLoading = false;
         state.error = action.payload;
       });
   },
